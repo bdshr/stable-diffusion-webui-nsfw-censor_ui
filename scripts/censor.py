@@ -2,6 +2,7 @@ import torch
 from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
 from transformers import AutoFeatureExtractor
 from PIL import Image
+import gradio as gr
 
 from modules import scripts, shared
 
@@ -50,7 +51,16 @@ class NsfwCheckScript(scripts.Script):
 
     def show(self, is_img2img):
         return scripts.AlwaysVisible
+        
+        
+    def ui(self, is_img2img):
+        with gr.Accordion(label='NSFW check', open=False):
+            enable = gr.Checkbox(label='Enable NSFW check', value=False)            
+            gr.Checkbox(label='Enable NSFW check', value=enable)            
+        ui = [enable]
+        return ui
 
-    def postprocess_batch(self, p, *args, **kwargs):
-        images = kwargs['images']
-        images[:] = censor_batch(images)[:]
+    def postprocess_batch(self, p,enable, *args, **kwargs):
+        if enable :
+            images = kwargs['images']
+            images[:] = censor_batch(images)[:]
